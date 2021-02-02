@@ -5,13 +5,13 @@ int main()
 {
     Tree<int> arbol;
     
-    arbol.recursivePush(15);
-    arbol.recursivePush(2);
-    arbol.recursivePush(4);  
-    arbol.recursivePush(6);
-    arbol.recursivePush(1);
-    arbol.recursivePush(16);
-    arbol.recursivePush(3);
+    arbol.push(15);
+    arbol.push(2);
+    arbol.push(4);  
+    arbol.push(6);
+    arbol.push(1);
+    arbol.push(16);
+    arbol.push(3);
 
     arbol.recursiveInOrder();
 

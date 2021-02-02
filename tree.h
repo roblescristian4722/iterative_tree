@@ -12,7 +12,6 @@ class Tree
 private:
     TreeNode<T>* root;
     int height;
-    bool empty;
 
     // Recursive operations (node)
     void recursivePush(TreeNode<T>*& node, const T& value);
@@ -24,14 +23,24 @@ private:
     TreeNode<T>*& recursiveGetNode(TreeNode<T>*&, const T& value);
     TreeNode<T>*& findLowestNode(TreeNode<T>*& node);
     TreeNode<T>*& findHighestNode(TreeNode<T>*& node);
-
-    bool isLeaf(TreeNode<T>*& node); 
+    
+    bool isLeaf(TreeNode<T>*& node);
 
 public:
     Tree();
     ~Tree();
 
     void clear();
+    bool empty();
+
+    // Iterarive operations
+    void push(const T& value);
+    void remove(const T& value);
+    bool exists(const T& value);
+    void preOrder();
+    void inOrder();
+    void postOrder();
+
 
     // Recursive operations
     void recursivePush(const T& value);
@@ -46,11 +55,15 @@ public:
 #endif
 
 template <typename T>
-Tree<T>::Tree() : root(nullptr), height(0), empty(true){}
+Tree<T>::Tree() : root(nullptr), height(0){}
 
 template <typename T>
 Tree<T>::~Tree()
 { delete this->root; }
+
+template <typename T>
+bool Tree<T>::empty()
+{ return (this->root == nullptr); }
 
 template <typename T>
 void Tree<T>::clear()
@@ -58,10 +71,7 @@ void Tree<T>::clear()
 
 template <typename T>
 void Tree<T>::recursivePush(const T& value)
-{
-    if (this->empty) this->empty = false;
-    recursivePush(this->root, value);
-}
+{ recursivePush(this->root, value); }
 
 template <typename T>
 void Tree<T>::recursivePush(TreeNode<T>*& node, const T& value)
@@ -203,3 +213,21 @@ bool Tree<T>::recursiveExists(TreeNode<T>*& node, const T& value)
     }
     return false;
 }
+
+template <typename T>
+void Tree<T>::push(const T& value)
+{
+    TreeNode<T>** aux = &this->root;
+    while (*aux != nullptr) {
+        if (value < *(*aux)->value)
+            aux = &(*aux)->left;
+        else if (value > *(*aux)->value)
+            aux = &(*aux)->right;
+        else if (value == *(*aux)->value) {
+            std::cout << "Value \"" << value << "\" has already been inserted" << std::endl;
+            return;    
+        }
+    }
+    (*aux) = new TreeNode<T>(value);
+}
+
