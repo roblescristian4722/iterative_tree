@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <stack>
+#include <queue>
 
 template <typename T>
 class Tree
@@ -21,8 +22,8 @@ private:
     void recursiveRemove(TreeNode<T>*& node, const T& value);
     bool recursiveExists(TreeNode<T>*& node, const T& value);
     TreeNode<T>*& recursiveGetNode(TreeNode<T>*&, const T& value);
-    TreeNode<T>*& findLowestNode(TreeNode<T>*& node);
-    TreeNode<T>*& findHighestNode(TreeNode<T>*& node);
+    TreeNode<T>*& recursiveLowestNode(TreeNode<T>*& node);
+    TreeNode<T>*& recursiveHighestNode(TreeNode<T>*& node);
     
     bool isLeaf(TreeNode<T>*& node);
 
@@ -36,11 +37,13 @@ public:
     // Iterarive operations
     void push(const T& value);
     void remove(const T& value);
+    TreeNode<T>*& getNode(const T& value);
     bool exists(const T& value);
     void preOrder();
     void inOrder();
     void postOrder();
-
+    TreeNode<T>*& highestNode(TreeNode<T>*& node);
+    TreeNode<T>*& lowestNode(TreeNode<T>*& node);
 
     // Recursive operations
     void recursivePush(const T& value);
@@ -52,7 +55,7 @@ public:
     TreeNode<T>*& recursiveGetNode(const T& value);
 };
 
-#endif
+#endif // TREE_H
 
 template <typename T>
 Tree<T>::Tree() : root(nullptr), height(0){}
@@ -147,7 +150,7 @@ void Tree<T>::recursiveRemove(TreeNode<T> *& node, const T& value)
         node = nullptr;
     }
     else {
-        TreeNode<T>*& auxNode = node->left == nullptr ? findLowestNode(node->right) : findHighestNode(node->left);
+        TreeNode<T>*& auxNode = node->left == nullptr ? recursiveLowestNode(node->right) : recursiveHighestNode(node->left);
         *node->value = *auxNode->value;
         delete auxNode;
         auxNode = nullptr;
@@ -155,19 +158,19 @@ void Tree<T>::recursiveRemove(TreeNode<T> *& node, const T& value)
 }
 
 template<typename T>
-TreeNode<T>*& Tree<T>::findLowestNode(TreeNode<T>*& node)
+TreeNode<T>*& Tree<T>::recursiveLowestNode(TreeNode<T>*& node)
 {
     if (node->left == nullptr)
         return node;
-    return findLowestNode(node->left);
+    return recursiveLowestNode(node->left);
 }
 
 template<typename T>
-TreeNode<T>*& Tree<T>::findHighestNode(TreeNode<T>*& node)
+TreeNode<T>*& Tree<T>::recursiveHighestNode(TreeNode<T>*& node)
 {
     if (node->right == nullptr)
         return node;
-    return findHighestNode(node->right);
+    return recursiveHighestNode(node->right);
 }
 
 template<typename T>
@@ -231,3 +234,127 @@ void Tree<T>::push(const T& value)
     (*aux) = new TreeNode<T>(value);
 }
 
+template <typename T>
+TreeNode<T>*& Tree<T>::getNode(const T& value)
+{
+    TreeNode<T>** aux = &this->root;
+    while ( *aux != nullptr ) {
+        if ( value < *(*aux)->value )
+            aux = &(*aux)->left;
+        else if ( value > *(*aux)->value )
+            aux = &(*aux)->right;
+        else if ( value == *(*aux)->value )
+            return *aux;
+    }
+    throw std::range_error("Value not found");
+}
+
+template <typename T>
+void Tree<T>::remove(const T& value)
+{
+    if ( !exists(value) ) {
+        std::cout << value << " doesn't exist" << std::endl;
+        return;
+    }
+    TreeNode<T>*& node = getNode(value);
+    if ( isLeaf(node) ) {
+        delete node;
+        node = nullptr;
+        return;
+    }
+    TreeNode<T>*& aux = node->left == nullptr ? lowestNode(node->right) : highestNode(node->left);
+    *node->value = *aux->value;
+    delete aux;
+    aux = nullptr;
+}
+
+template <typename T>
+bool Tree<T>::exists(const T& value)
+{
+    TreeNode<T>** aux = &this->root;
+    while ( *aux != nullptr ) {
+        if ( value < *(*aux)->value )
+            aux = &(*aux)->left;
+        else if ( value > *(*aux)->value )
+            aux = &(*aux)->right;
+        else if ( value == *(*aux)->value )
+            return true;
+    }
+    return false;
+}
+
+template <typename T>
+TreeNode<T>*& Tree<T>::highestNode(TreeNode<T>*& node)
+{
+    TreeNode<T>** aux = &node;
+    while ( (*aux)->right != nullptr )
+        aux = &(*aux)->right;
+    return *aux;
+}
+
+template <typename T>
+TreeNode<T>*& Tree<T>::lowestNode(TreeNode<T>*& node)
+{
+    TreeNode<T>** aux = &node;
+    while ( (*aux)->left != nullptr )
+        aux = &(*aux)->left;
+    return *aux;
+}
+
+template <typename T>
+void Tree<T>::inOrder()
+{
+    // stack that holds the nodes that will be printed and whose right nodes will be parsed
+    std::stack<TreeNode<T>**> nodes;
+    TreeNode<T>** current = &this->root;
+    while ( !nodes.empty() || *current != nullptr ) {
+        // We push every left node on the stack so they get parsed later
+        while ( *current != nullptr ) {
+            nodes.push(current);
+            current = &(*current)->left;
+        }
+        std::cout << *(*nodes.top())->value << std::endl;
+        current = nodes.top();
+        nodes.pop();
+        current = &(*current)->right;
+    }
+}
+
+template <typename T>
+void Tree<T>::preOrder()
+{
+    std::stack<TreeNode<T>**> nodes;
+    nodes.push(&this->root);
+    TreeNode<T>** current = &this->root;
+    while ( !nodes.empty() && !empty() ) {
+        std::cout << *(*nodes.top())->value << std::endl;
+        current = nodes.top();
+        nodes.pop();
+        
+        if ( (*current)->right != nullptr )
+            nodes.push(&(*current)->right);
+        if ( (*current)->left != nullptr )
+            nodes.push( &(*current)->left );
+    }
+}
+
+template <typename T>
+void Tree<T>::postOrder()
+{
+    std::stack<TreeNode<T>**> nodes;
+    TreeNode<T>** current = &this->root;
+    while ( !nodes.empty() || *current != nullptr ) {
+        while ( *current != nullptr ) {
+            nodes.push( &(*current) );
+            current = &(*current)->left;
+        }
+        current = &(*nodes.top());
+        if ( (*current)->right != nullptr )
+            current = &(*current)->right;
+        else {
+            std::cout << *(*nodes.top())->value << std::endl;
+            nodes.pop();
+            *current = nullptr;
+        }
+    }
+}

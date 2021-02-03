@@ -18,6 +18,8 @@ template<typename T>
 TreeNode<T>::TreeNode(const T& value)
 {
     this->value = new T(value);
+    this->left = nullptr;
+    this->right = nullptr;
 }
 
 template<typename T>

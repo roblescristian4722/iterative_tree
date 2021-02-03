@@ -12,15 +12,25 @@ int main()
     arbol.push(1);
     arbol.push(16);
     arbol.push(3);
+    
+    std::cout << "Enorden: " << std::endl;
+    arbol.inOrder();
+    std::cout << "Preorden: " << std::endl;
+    arbol.preOrder();
+    std::cout << "Postorden: " << std::endl;
+    arbol.postOrder();
 
-    arbol.recursiveInOrder();
+    std::cout << "existe 2: " << arbol.recursiveExists(2) << std::endl
+              << "existe 200: " << arbol.recursiveExists(200) << std::endl
+              << "existe 15: " << arbol.recursiveExists(15) << std::endl << std::endl; 
+    
+    std::cout << "existe 2: " << arbol.exists(2) << std::endl
+              << "existe 200: " << arbol.exists(200) << std::endl
+              << "existe 15: " << arbol.exists(15) << std::endl;
 
-    std::cout << 2 <<  " " << arbol.recursiveExists(2) << std::endl
-              << 200 << " " << arbol.recursiveExists(200) << std::endl
-              << 15 << " " << arbol.recursiveExists(15) << std::endl << std::endl; 
-    arbol.recursiveRemove(1);
+    arbol.remove(1);
     arbol.recursiveInOrder();
-    arbol.recursiveRemove(15);
+    arbol.remove(15);
     arbol.recursiveInOrder();
     std::cout << "SDFALÑKFJÑFKLJ" << std::endl;
     arbol.recursiveRemove(200);
